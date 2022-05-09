@@ -57,16 +57,17 @@ const createFunFact = async (req, res) => {
 const patchFunFact = async (req, res) => {
     if (!req?.body?.index) return res.status(400).json({ 'message': 'State fun fact index value required' });
     if (!req?.body?.funfact) return res.status(400).json({ 'message': 'State fun fact value required' });
+    const pos = req.body.index-1;
     const stateDB = await State.findOne({ code: req.code }).exec();
     if (!stateDB) {
         const state = statesJSON.find(st => st.code === req.code)
         return res.status(404).json({ 'message': `No Fun Facts found for ${state.state}` });
     }
-    if (!stateDB.funfacts[req.body.index]) {
+    if (!stateDB.funfacts[pos]) {
         const state = statesJSON.find(st => st.code === req.code);
         return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
     }
-    stateDB.funfacts[req.body.index] = req.body.funfact;
+    stateDB.funfacts[pos] = req.body.funfact;
     const result = await stateDB.save();
     res.json(result);
 }
@@ -83,9 +84,11 @@ const deleteFunFact = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code);
         return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
     }
-    const value = stateDB[pos];
-    State.updateOne({"code":req.code}, 
-    {"$pull":{"funfacts":value}});
+    const value = stateDB.funfacts[pos];
+    const index = stateDB.funfacts.indexOf(value);
+    if (index > -1) {
+        stateDB.funfacts.splice(index, 1); // 2nd parameter means remove one item only
+    }
     return res.json(stateDB);
 }
 
