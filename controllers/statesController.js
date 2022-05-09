@@ -110,7 +110,7 @@ const deleteFunFact = async (req, res) => {
     }
     const funfacts = stateDB.funfacts.filter(ff => ff !== stateDB.funfacts[pos]);
     stateDB.deleteOne({ code: req.code });
-    const result = await State.updateOne(
+    await State.updateOne(
         { code: req.code },
         { $push: { funfacts: funfacts } },
         { upsert: true }
