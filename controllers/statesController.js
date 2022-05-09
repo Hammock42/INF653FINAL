@@ -62,11 +62,11 @@ const patchFunFact = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code)
         return res.status(404).json({ 'message': `No Fun Facts found for ${state.state}` });
     }
-    if (!stateDB.funfacts[req.body.index-1]) {
+    if (!stateDB.funfacts[req.body.index]) {
         const state = statesJSON.find(st => st.code === req.code);
         return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
     }
-    stateDB.funfacts[req.body.index-1] = req.body.funfact;
+    stateDB.funfacts[req.body.index] = req.body.funfact;
     const result = await stateDB.save();
     res.json(result);
 }
@@ -77,7 +77,7 @@ const deleteFunFact = async (req, res) => {
     const stateDB = await State.findOne({ code: req.code }).exec();
     if (!stateDB) {
         const state = statesJSON.find(st => st.code === req.code);
-        return res.status(204).json({ "message": `No Fun Facts found for ${state.state}` });
+        return res.status(400).json({ "message": `No Fun Facts found for ${state.state}` });
     }
     if (!stateDB.funfacts[pos]) {
         const state = statesJSON.find(st => st.code === req.code);
