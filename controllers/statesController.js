@@ -29,8 +29,11 @@ const getAllStates = async (req, res) => {
 }
 
 const getFunFacts = async (req, res) => {
-    const state = await State.findOne({ code: req.code }).exec();
-    if (!state) return res.status(404).json({ 'message': `No Fun Facts found for ${req.code}` });
+    const stateDB = await State.findOne({ code: req.code }).exec();
+    if (!stateDB) {
+        const state = statesJSON.find(st => st.code === req.code)
+        return res.status(404).json({ 'message': `No Fun Facts found for ${state.state}` });
+    }
     funfact = state.funfacts[Math.floor(Math.random() * state.funfacts.length)];
     return res.json({funfact});
 }
