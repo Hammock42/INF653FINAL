@@ -55,23 +55,23 @@ const createFunFact = async (req, res) => {
     const stateDB = await State.findOne({ code: req.code }).exec();
     if (!stateDB) {
         try {
-            const result = await State.updateOne(
+            await State.updateOne(
                 { code: req.code },
                 { $push: { funfacts: req.body.funfacts } },
                 { upsert: true }
             );
-            res.status(201).json(result.funfacts);
+            res.status(201).json(stateDB);
         } catch (err) {
             console.error(err);
         }
     } else {
         try {
-            const result = await State.updateOne(
+            await State.updateOne(
                 { code: req.code },
                 { $push: { funfacts: req.body.funfacts } },
                 { upsert: false }
             );
-            res.status(201).json(result.funfacts);
+            res.status(201).json(stateDB);
         } catch (err) {
             console.error(err);
         }
@@ -115,7 +115,7 @@ const deleteFunFact = async (req, res) => {
         { $push: { funfacts: funfacts } },
         { upsert: true }
     );
-    return res.json(result);
+    return res.json(stateDB);
     //const newStateDB = stateDB.
 }
 
