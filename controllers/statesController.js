@@ -97,7 +97,10 @@ const deleteFunFact = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code);
         return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
     }
-    const funfacts = stateDB.funfacts.filter(ff => ff !== stateDB.funfacts[pos]);
+    const count = 0;
+    const funfacts = await stateDB.funfacts.forEach(ff => {
+        if (count !== pos) return ff;
+    })
     stateDB.deleteOne({ code: req.code });
     await State.updateOne(
         { code: req.code },
