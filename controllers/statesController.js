@@ -1,4 +1,5 @@
 const State = require('../model/State');
+const stateFactsArray = State.find()
 const statesJSON = require('../model/states.json');
 
 /* mergedStates = [];
@@ -23,7 +24,17 @@ const getAllStates = async (req, res) => {
             return res.json(contigList);
         }
     } else {
-        return res.json(statesJSON);
+        const statesDB = await State.find();
+        const mergedStates = [];
+        statesJSON.forEach(state => {
+            statesDB.forEach(st => {
+                if (st.code === state.code) {
+                    state.funfacts = st.funfacts;
+                }
+            })
+            mergedStates.push(state);
+        })
+        return res.json(mergedStates);
     }
     //if (!states) return res.status(204).json({ 'message': 'No states found' });
 }
@@ -34,8 +45,9 @@ const getFunFacts = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code)
         return res.status(404).json({ 'message': `No Fun Facts found for ${state.state}` });
     }
-    funfact = stateDB.funfacts[Math.floor(Math.random() * stateDB.funfacts.length)];
-    return res.json({funfact});
+    const funfact = stateDB.funfacts;//[Math.floor(Math.random() * stateDB.funfacts.length)];
+    const code = stateDB.code;
+    return res.json({code});
 }
 
 const createFunFact = async (req, res) => {
@@ -84,12 +96,7 @@ const deleteFunFact = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code);
         return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
     }
-    const value = stateDB.funfacts[pos];
-    const index = stateDB.funfacts.indexOf(value);
-    if (index > -1) {
-        stateDB.funfacts.splice(index, 1); // 2nd parameter means remove one item only
-    }
-    return res.json(stateDB);
+    stateDB.filter( fact => fact !== factsArray[pos] );
 }
 
 const getState = async (req, res) => {
