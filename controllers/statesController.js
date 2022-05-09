@@ -53,15 +53,28 @@ const createFunFact = async (req, res) => {
     if (!req?.body?.funfacts) return res.status(400).json({ 'message': 'State fun facts value required' });
     if (!Array.isArray(req.body.funfacts)) return res.json({ 'message': 'State fun facts value must be an array' });
     const stateDB = await State.findOne({ code: req.code }).exec();
-    try {
-        const result = await State.updateOne(
-            { code: req.code },
-            { $push: { funfacts: req.body.funfacts } },
-            { upsert: true }
-        );
-        res.status(201).json(result);
-    } catch (err) {
-        console.error(err);
+    if (!stateDB) {
+        try {
+            const result = await State.updateOne(
+                { code: req.code },
+                { $push: { funfacts: req.body.funfacts } },
+                { upsert: true }
+            );
+            res.status(201).json(result.funfacts);
+        } catch (err) {
+            console.error(err);
+        }
+    } else {
+        try {
+            const result = await State.updateOne(
+                { code: req.code },
+                { $push: { funfacts: req.body.funfacts } },
+                { upsert: false }
+            );
+            res.status(201).json(result.funfacts);
+        } catch (err) {
+            console.error(err);
+        }
     }
 }
 
@@ -95,7 +108,15 @@ const deleteFunFact = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code);
         return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
     }
-    stateDB.filter( fact => fact !== factsArray[pos] );
+    const funfacts = stateDB.funfacts.filter(ff => ff !== stateDB.funfacts[pos]);
+    stateDB.deleteOne({ code: req.code });
+    const result = await State.updateOne(
+        { code: req.code },
+        { $push: { funfacts: funfacts } },
+        { upsert: true }
+    );
+    return res.json(result);
+    //const newStateDB = stateDB.
 }
 
 const getState = async (req, res) => {
