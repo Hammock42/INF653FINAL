@@ -81,7 +81,8 @@ const patchFunFact = async (req, res) => {
     }
     stateDB.funfacts[pos] = req.body.funfact;
     await stateDB.save();
-    return res.json(stateDB);
+    const newState = await State.findOne({ code: req.code }).exec();
+    return res.json(newState);
 }
 
 const deleteFunFact = async (req, res) => {
