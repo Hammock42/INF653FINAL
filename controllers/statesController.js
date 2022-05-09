@@ -80,8 +80,8 @@ const patchFunFact = async (req, res) => {
         return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
     }
     stateDB.funfacts[pos] = req.body.funfact;
-    const result = await stateDB.save();
-    res.json(result);
+    await stateDB.save();
+    return res.json(stateDB);
 }
 
 const deleteFunFact = async (req, res) => {
