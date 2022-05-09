@@ -56,22 +56,37 @@ const createFunFact = async (req, res) => {
 
 const patchFunFact = async (req, res) => {
     if (!req?.body?.index) return res.status(400).json({ 'message': 'State fun fact index value required' });
-    if (!req?.body?.funfacts) return res.status(400).json({ 'message': 'State fun fact value required' });
-    const state = await State.findOne({ code: req.code }).exec();
-    if (!state) return res.status(204).json({ "message": `No Fun Facts found for ${req.code}` });
-    if (!state.funfacts[req.body.index]) return res.status(400).json({ 'message': `No Fun Fact found at that index for ${req.params.state}` });
-    state.funfact[req.body.index] = req.body.funfact;
-    const result = await state.save();
+    if (!req?.body?.funfact) return res.status(400).json({ 'message': 'State fun fact value required' });
+    const stateDB = await State.findOne({ code: req.code }).exec();
+    if (!stateDB) {
+        const state = statesJSON.find(st => st.code === req.code)
+        return res.status(404).json({ 'message': `No Fun Facts found for ${state.state}` });
+    }
+    if (!stateDB.funfacts[req.body.index-1]) {
+        const state = statesJSON.find(st => st.code === req.code);
+        return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
+    }
+    stateDB.funfacts[req.body.index-1] = req.body.funfact;
+    const result = await stateDB.save();
     res.json(result);
 }
 
 const deleteFunFact = async (req, res) => {
     if (!req.body?.index) { return res.status(400).json({ 'message': 'State fun fact index value required' })};
-    const state = await State.findOne({ code: req.code }).exec();
-    if (!state) return res.status(204).json({ "message": `No Fun Facts found for ${req.code}` });
-    if (!state.funfacts[req.body.index]) return res.status(400).json({ 'message': `No Fun Fact found at that index for ${req.params.state}` });
-    const result = await state.deleteOne({ code: req.code });
-    res.json(result);
+    const pos = req.body.index-1;
+    const stateDB = await State.findOne({ code: req.code }).exec();
+    if (!stateDB) {
+        const state = statesJSON.find(st => st.code === req.code);
+        return res.status(204).json({ "message": `No Fun Facts found for ${state.state}` });
+    }
+    if (!stateDB.funfacts[pos]) {
+        const state = statesJSON.find(st => st.code === req.code);
+        return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
+    }
+    const value = stateDB[pos];
+    State.updateOne({"code":req.code}, 
+    {"$pull":{"funfacts":value}});
+    return res.json(stateDB);
 }
 
 const getState = async (req, res) => {
