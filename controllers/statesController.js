@@ -34,7 +34,7 @@ const getFunFacts = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code)
         return res.status(404).json({ 'message': `No Fun Facts found for ${state.state}` });
     }
-    funfact = state.funfacts[Math.floor(Math.random() * state.funfacts.length)];
+    funfact = stateDB.funfacts[Math.floor(Math.random() * stateDB.funfacts.length)];
     return res.json({funfact});
 }
 
