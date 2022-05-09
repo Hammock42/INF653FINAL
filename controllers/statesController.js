@@ -100,7 +100,7 @@ const getStatePopulation = async (req, res) => {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
     population = numberWithCommas(state.population);
-    return res.json({'state': state.state, 'nickname': population});
+    return res.json({'state': state.state, 'population': population});
 }
 
 module.exports = {
