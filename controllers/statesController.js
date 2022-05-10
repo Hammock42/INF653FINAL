@@ -54,13 +54,13 @@ const createFunFact = async (req, res) => {
     if (!Array.isArray(req.body.funfacts)) return res.json({ 'message': 'State fun facts value must be an array' });
     const stateDB = await State.findOne({ code: req.code }).exec();
     try {
-        await State.updateOne(
+        await stateDB.updateOne(
             { code: req.code },
             { $push: { funfacts: req.body.funfacts } },
             { upsert: true }
         );
-        const newState = await State.findOne({ code: req.code }).exec();
-        return res.status(201).json(newState);
+        await stateDB.save();
+        return res.status(201).json(stateDB);
     } catch (err) {
         console.error(err);
     }
