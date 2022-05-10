@@ -10,12 +10,6 @@ const PORT = process.env.PORT || 3500;
 // Connect to MongoDB
 connectDB();
 
-// custom logger
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
-    next();
-})
-
 // Cross Origin Resource Sharing
 app.use(cors());
 
