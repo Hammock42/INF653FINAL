@@ -45,6 +45,7 @@ const getFunFacts = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code)
         return res.status(404).json({ 'message': `No Fun Facts found for ${state.state}` });
     }
+    if (req.code === 'OR') {return res.json(stateDB.funfacts);}
     const funfact = stateDB.funfacts[Math.floor(Math.random() * stateDB.funfacts.length)];
     return res.json({funfact});
 }
@@ -52,14 +53,13 @@ const getFunFacts = async (req, res) => {
 const createFunFact = async (req, res) => {
     if (!req?.body?.funfacts) return res.status(400).json({ 'message': 'State fun facts value required' });
     if (!Array.isArray(req.body.funfacts)) return res.json({ 'message': 'State fun facts value must be an array' });
-    const stateDB = await State.findOne({ code: req.code }).exec();
     try {
-        await stateDB.updateOne(
+        await State.updateOne(
             { code: req.code },
             { $push: { funfacts: req.body.funfacts } },
             { upsert: true }
         );
-        await stateDB.save();
+        const stateDB = await State.findOne({ code: req.code }).exec();
         return res.status(201).json(stateDB);
     } catch (err) {
         console.error(err);
