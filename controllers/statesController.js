@@ -97,19 +97,15 @@ const deleteFunFact = async (req, res) => {
         const state = statesJSON.find(st => st.code === req.code);
         return res.status(400).json({ 'message': `No Fun Fact found at that index for ${state.state}` });
     }
-    const count = 0;
-    const funfacts = [];
-    await stateDB.funfacts.forEach(ff => {
-        if (count !== pos) funfacts.push(ff);
-    })
-    stateDB.deleteOne({ code: req.code });
-    await State.updateOne(
+    const factsArray = await stateDB.funfacts;
+    const filteredFacts = await factsArray.splice(pos, 1);
+    await stateDB.updateOne(
         { code: req.code },
-        { $push: { funfacts: funfacts } },
+        { $push: { funfacts: factsArray } },
         { upsert: true }
     );
+    await stateDB.save();
     return res.json(stateDB);
-    //const newStateDB = stateDB.
 }
 
 const getState = async (req, res) => {
